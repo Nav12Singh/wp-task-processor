@@ -1,0 +1,411 @@
+/* WP Task Processor — Admin Styles */
+
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+.wtp-dashboard { max-width: 1400px; }
+
+.wtp-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 23px;
+    margin-bottom: 20px;
+}
+
+.wtp-version {
+    font-size: 12px;
+    background: #0073aa;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: normal;
+}
+
+.wtp-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.wtp-card h2 {
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ── Stats bar ───────────────────────────────────────────────────────────── */
+.wtp-stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.wtp-stat {
+    flex: 1;
+    min-width: 120px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    transition: box-shadow .2s;
+}
+
+.wtp-stat:hover { box-shadow: 0 3px 8px rgba(0,0,0,.12); }
+
+.wtp-stat__count {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.wtp-stat__label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #666;
+}
+
+.wtp-stat--pending    .wtp-stat__count { color: #b45309; }
+.wtp-stat--processing .wtp-stat__count { color: #0073aa; }
+.wtp-stat--completed  .wtp-stat__count { color: #1a7431; }
+.wtp-stat--failed     .wtp-stat__count { color: #c0392b; }
+
+/* ── Connection bar ──────────────────────────────────────────────────────── */
+.wtp-connection-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #555;
+}
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.wtp-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.wtp-badge--pending    { background: #fef3c7; color: #b45309; }
+.wtp-badge--processing { background: #dbeafe; color: #1e40af; }
+.wtp-badge--completed  { background: #d1fae5; color: #065f46; }
+.wtp-badge--failed     { background: #fee2e2; color: #991b1b; }
+.wtp-badge--info       { background: #e0f2fe; color: #0369a1; }
+.wtp-badge--warning    { background: #fef3c7; color: #b45309; }
+.wtp-badge--error      { background: #fee2e2; color: #991b1b; }
+.wtp-badge--debug      { background: #f3f4f6; color: #4b5563; }
+.wtp-badge--system     { background: #ede9fe; color: #6d28d9; }
+.wtp-badge--heartbeat  { background: #fce7f3; color: #9d174d; }
+
+.wtp-badge--connecting   { background: #fef3c7; color: #b45309; animation: wtp-pulse 1.2s infinite; }
+.wtp-badge--connected    { background: #d1fae5; color: #065f46; }
+.wtp-badge--disconnected { background: #f3f4f6; color: #6b7280; }
+.wtp-badge--error        { background: #fee2e2; color: #991b1b; }
+
+/* ── Status-specific row tints ───────────────────────────────────────────── */
+tr.wtp-row--processing td { background: #f0f8ff !important; }
+tr.wtp-row--completed td  { background: #f0fff4 !important; }
+tr.wtp-row--failed td     { background: #fff5f5 !important; }
+
+/* ── Task ID ─────────────────────────────────────────────────────────────── */
+.wtp-id {
+    font-size: 11px;
+    word-break: break-all;
+    background: #f9fafb;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* ── Form ────────────────────────────────────────────────────────────────── */
+.wtp-form-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.wtp-form-row label {
+    min-width: 160px;
+    font-weight: 600;
+}
+
+.wtp-msg {
+    margin-left: 12px;
+    font-size: 13px;
+    color: #1a7431;
+}
+
+/* ── Filter bar ──────────────────────────────────────────────────────────── */
+.wtp-filter-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+.wtp-filter-btn.active { background: #0073aa; color: #fff; border-color: #0073aa; }
+
+/* ── Event log ───────────────────────────────────────────────────────────── */
+.wtp-event-log {
+    height: 240px;
+    overflow-y: auto;
+    background: #0d1117;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+}
+
+.wtp-event-entry {
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    color: #c9d1d9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wtp-event-entry.wtp-event--failed,
+.wtp-event-entry.wtp-event--error  { color: #ff7b72; }
+.wtp-event-entry.wtp-event--completed { color: #3fb950; }
+.wtp-event-entry.wtp-event--processing { color: #58a6ff; }
+.wtp-event-entry.wtp-event--heartbeat  { color: #db61a2; }
+
+.wtp-event-ts {
+    color: #6e7681;
+    min-width: 70px;
+    font-size: 11px;
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.wtp-pagination {
+    padding: 12px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #555;
+}
+
+/* ── Dots ────────────────────────────────────────────────────────────────── */
+.wtp-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+.wtp-dot--green { background: #1a7431; }
+.wtp-dot--red   { background: #c0392b; }
+
+/* ── API Reference card ──────────────────────────────────────────────────── */
+.wtp-api-meta {
+    background: #f6f7f7;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.wtp-api-meta__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.wtp-api-meta__label {
+    font-weight: 600;
+    font-size: 12px;
+    color: #555;
+    min-width: 90px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.wtp-api-meta__val {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 13px;
+    background: #fff;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: #0073aa;
+    word-break: break-all;
+}
+
+/* ── Endpoint block ──────────────────────────────────────────────────────── */
+.wtp-ep {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+.wtp-ep__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #fafafa;
+    border-bottom: 1px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+.wtp-ep__url {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 13px;
+    color: #1a1a1a;
+    background: none;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
+    word-break: break-all;
+}
+.wtp-ep__title {
+    font-size: 13px;
+    color: #666;
+    margin-left: auto;
+}
+.wtp-ep__body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+}
+.wtp-ep__col {
+    padding: 14px 16px;
+    border-right: 1px solid #f0f0f0;
+}
+.wtp-ep__col:last-child { border-right: none; }
+.wtp-ep__section-label {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #555;
+    margin: 0 0 8px;
+}
+.wtp-ep__note {
+    font-weight: 400;
+    font-size: 11px;
+    color: #999;
+    text-transform: none;
+    letter-spacing: 0;
+}
+.wtp-ep__hint {
+    font-size: 12px;
+    color: #555;
+    margin: 8px 0 0;
+    line-height: 1.6;
+}
+.wtp-ep__hint code {
+    background: #f0f0f0;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+/* ── Code blocks ─────────────────────────────────────────────────────────── */
+.wtp-code {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    padding: 10px 12px;
+    border-radius: 5px;
+    margin: 0 0 6px;
+    overflow-x: auto;
+    white-space: pre;
+}
+
+/* ── Method badges ───────────────────────────────────────────────────────── */
+.wtp-method {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    padding: 3px 9px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.wtp-method--post { background: #dbeafe; color: #1e40af; }
+.wtp-method--get  { background: #d1fae5; color: #065f46; }
+
+/* ── Params table ────────────────────────────────────────────────────────── */
+.wtp-params-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.wtp-params-table td {
+    padding: 4px 6px;
+    vertical-align: top;
+    border-bottom: 1px solid #f0f0f0;
+}
+.wtp-params-table code {
+    background: #f0f0f0;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+.wtp-req {
+    display: inline-block;
+    background: #fee2e2;
+    color: #991b1b;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+.wtp-opt {
+    display: inline-block;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* ── Settings nav tabs ───────────────────────────────────────────────────── */
+.wtp-settings-tabs { margin-bottom: 0 !important; }
+.wtp-settings-tabs + .wtp-card { border-top-left-radius: 0; }
+
+/* ── Task lifecycle diagram ──────────────────────────────────────────────── */
+.wtp-lifecycle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.wtp-lifecycle__step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+.wtp-lifecycle__step .wtp-badge { flex-shrink: 0; min-width: 80px; text-align: center; }
+.wtp-lifecycle__desc { font-size: 12px; color: #555; }
+.wtp-lifecycle__arrow { font-size: 16px; color: #ccc; padding-left: 35px; line-height: 1; }
+.wtp-lifecycle__fork  { padding-left: 0; }
+
+@media screen and (max-width: 900px) {
+    .wtp-ep__body { grid-template-columns: 1fr; }
+    .wtp-ep__col  { border-right: none; border-bottom: 1px solid #f0f0f0; }
+    .wtp-ep__col:last-child { border-bottom: none; }
+    .wtp-ep__title { display: none; }
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes wtp-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .5; }
+}

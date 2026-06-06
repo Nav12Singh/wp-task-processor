@@ -1,0 +1,140 @@
+version: '3.9'
+
+services:
+
+  # ── WordPress + Plugin ──────────────────────────────────────────────────────
+  wordpress:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: wp-task-processor:latest
+    container_name: wtp_wordpress
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:80"
+    environment:
+      WORDPRESS_DB_HOST:     db:3306
+      WORDPRESS_DB_USER:     wtp_user
+      WORDPRESS_DB_PASSWORD: wtp_secret
+      WORDPRESS_DB_NAME:     wtp_db
+      WORDPRESS_DEBUG:       "1"
+      WTP_REDIS_HOST:        redis
+      WTP_REDIS_PORT:        "6379"
+    volumes:
+      - wordpress_data:/var/www/html
+      - ..:/var/www/html/wp-content/plugins/wp-task-processor
+    networks:
+      - wtp_net
+
+  # ── WebSocket Server ────────────────────────────────────────────────────────
+  websocket:
+    image: wp-task-processor:latest
+    container_name: wtp_websocket
+    restart: unless-stopped
+    depends_on:
+      - wordpress
+      - redis
+    ports:
+      - "8080:8080"
+    environment:
+      WTP_WS_HOST:  "0.0.0.0"
+      WTP_WS_PORT:  "8080"
+      REDIS_HOST:   redis
+      REDIS_PORT:   "6379"
+    volumes:
+      - ..:/var/www/html/wp-content/plugins/wp-task-processor
+    working_dir: /var/www/html
+    command: >
+      php wp-content/plugins/wp-task-processor/bin/websocket-server.php
+    networks:
+      - wtp_net
+
+  # ── WP-Cron Worker ──────────────────────────────────────────────────────────
+  cron:
+    image: wp-task-processor:latest
+    container_name: wtp_cron
+    restart: unless-stopped
+    depends_on:
+      - wordpress
+    volumes:
+      - wordpress_data:/var/www/html
+      - ..:/var/www/html/wp-content/plugins/wp-task-processor
+    working_dir: /var/www/html
+    command: >
+      sh -c "while true; do
+        wp cron event run --due-now --allow-root --path=/var/www/html 2>&1;
+        sleep 60;
+      done"
+    networks:
+      - wtp_net
+
+  # ── MySQL ───────────────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: wtp_mysql
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "wtp_user", "-pwtp_secret" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      MYSQL_DATABASE:      wtp_db
+      MYSQL_USER:          wtp_user
+      MYSQL_PASSWORD:      wtp_secret
+      MYSQL_ROOT_PASSWORD: root_secret
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wtp_net
+    ports:
+      - "3307:3306"  # Exposed on 3307 to avoid conflict with local MySQL
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: wtp_redis
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - wtp_net
+    ports:
+      - "6379:6379"
+
+  # ── Redis Commander (GUI) ───────────────────────────────────────────────────
+  redis_commander:
+    image: rediscommander/redis-commander:latest
+    container_name: wtp_redis_gui
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - wtp_net
+    profiles:
+      - debug  # Only starts with: docker-compose --profile debug up
+
+networks:
+  wtp_net:
+    driver: bridge
+
+volumes:
+  wordpress_data:
+  db_data:
+  redis_data:

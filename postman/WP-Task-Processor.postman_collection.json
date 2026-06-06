@@ -1,0 +1,242 @@
+{
+  "info": {
+    "_postman_id": "wtp-2024-collection",
+    "name": "WP Task Processor",
+    "description": "Complete API collection for the WP Task Processor WordPress plugin.\n\n## Setup\n1. Set `base_url` variable to your WordPress URL (e.g. `http://localhost:8000`)\n2. Set `nonce` via: GET {{base_url}}/wp-json — copy the nonce from the REST API response\n3. Or configure an API key in plugin settings and set `api_key` variable\n\n## Authentication\nAll endpoints accept:\n- `X-WP-Nonce` header (for logged-in WordPress users)\n- `X-WTP-API-Key` header (for external integrations)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",  "value": "http://localhost:8000",  "type": "string" },
+    { "key": "api_url",   "value": "{{base_url}}/wp-json/wtp/v1", "type": "string" },
+    { "key": "nonce",     "value": "",    "type": "string" },
+    { "key": "api_key",   "value": "",    "type": "string" },
+    { "key": "task_id",   "value": "",    "type": "string" }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key",   "value": "X-WTP-API-Key" },
+      { "key": "value", "value": "{{api_key}}" },
+      { "key": "in",    "value": "header" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "POST Create Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.id) pm.collectionVariables.set('task_id', r.id);",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Has id',     () => pm.expect(r).to.have.property('id'));",
+                  "pm.test('Status pending', () => pm.expect(r.status).to.eql('pending'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",   "value": "application/json" },
+              { "key": "X-WP-Nonce",    "value": "{{nonce}}" },
+              { "key": "X-Idempotency-Key", "value": "test-task-{{$randomUUID}}", "description": "Optional idempotency key" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"email\",\n  \"payload\": {\n    \"to\": \"user@example.com\",\n    \"subject\": \"Welcome!\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{api_url}}/tasks",
+              "host": ["{{api_url}}"],
+              "path": ["tasks"]
+            },
+            "description": "Create a new task. Returns 201 with task data.\n\nIdempotency: send the same `X-Idempotency-Key` twice — you'll get the same task back."
+          }
+        },
+        {
+          "name": "POST Create Task (Force Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-WP-Nonce",  "value": "{{nonce}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"report\",\n  \"payload\": {\n    \"_force_fail\": true,\n    \"report_type\": \"monthly\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{api_url}}/tasks", "host": ["{{api_url}}"], "path": ["tasks"] },
+            "description": "Creates a task that will always fail — useful for testing retry logic."
+          }
+        },
+        {
+          "name": "POST Create Task (Idempotency Test)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",       "value": "application/json" },
+              { "key": "X-WP-Nonce",         "value": "{{nonce}}" },
+              { "key": "X-Idempotency-Key",  "value": "my-unique-key-001" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"sync\",\n  \"payload\": { \"entity\": \"orders\" }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{api_url}}/tasks", "host": ["{{api_url}}"], "path": ["tasks"] },
+            "description": "Run this request twice with the same idempotency key — both calls return the same task without creating a duplicate."
+          }
+        },
+        {
+          "name": "GET List All Tasks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('Has tasks array', () => pm.expect(r.tasks).to.be.an('array'));",
+                  "pm.test('Has total',       () => pm.expect(r).to.have.property('total'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "X-WP-Nonce", "value": "{{nonce}}" } ],
+            "url": {
+              "raw": "{{api_url}}/tasks?per_page=20&page=1",
+              "host": ["{{api_url}}"],
+              "path": ["tasks"],
+              "query": [
+                { "key": "per_page", "value": "20" },
+                { "key": "page",     "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET List Tasks by Status",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "X-WP-Nonce", "value": "{{nonce}}" } ],
+            "url": {
+              "raw": "{{api_url}}/tasks?status=failed",
+              "host": ["{{api_url}}"],
+              "path": ["tasks"],
+              "query": [
+                { "key": "status", "value": "failed", "description": "pending | processing | completed | failed" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Single Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('ID matches', () => pm.expect(r.id).to.eql(pm.collectionVariables.get('task_id')));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "X-WP-Nonce", "value": "{{nonce}}" } ],
+            "url": {
+              "raw": "{{api_url}}/tasks/{{task_id}}",
+              "host": ["{{api_url}}"],
+              "path": ["tasks", "{{task_id}}"]
+            }
+          }
+        },
+        {
+          "name": "GET Task Logs",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "X-WP-Nonce", "value": "{{nonce}}" } ],
+            "url": {
+              "raw": "{{api_url}}/tasks/{{task_id}}/logs",
+              "host": ["{{api_url}}"],
+              "path": ["tasks", "{{task_id}}", "logs"]
+            }
+          }
+        },
+        {
+          "name": "POST Retry Failed Task",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "X-WP-Nonce", "value": "{{nonce}}" } ],
+            "url": {
+              "raw": "{{api_url}}/tasks/{{task_id}}/retry",
+              "host": ["{{api_url}}"],
+              "path": ["tasks", "{{task_id}}", "retry"]
+            },
+            "description": "Manually retry a failed task. Resets attempt counter and re-queues."
+          }
+        }
+      ]
+    },
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "GET Queue Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200',   () => pm.response.to.have.status(200));",
+                  "pm.test('Has counts',   () => pm.expect(pm.response.json()).to.have.property('counts'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "X-WP-Nonce", "value": "{{nonce}}" } ],
+            "url": {
+              "raw": "{{api_url}}/stats",
+              "host": ["{{api_url}}"],
+              "path": ["stats"]
+            }
+          }
+        },
+        {
+          "name": "GET SSE Events Stream",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "X-WP-Nonce", "value": "{{nonce}}" } ],
+            "url": {
+              "raw": "{{api_url}}/events",
+              "host": ["{{api_url}}"],
+              "path": ["events"],
+              "query": [
+                { "key": "task_id", "value": "{{task_id}}", "disabled": true, "description": "Optionally filter to a single task" }
+              ]
+            },
+            "description": "Server-Sent Events endpoint. Connect with EventSource in the browser.\n\nEvents: task_updated, heartbeat\n\nNote: Postman will show a streaming response."
+          }
+        }
+      ]
+    }
+  ]
+}
